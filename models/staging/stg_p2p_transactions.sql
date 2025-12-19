@@ -6,20 +6,20 @@ select
     trim(sender_id) as sender_id,
     trim(receiver_id) as receiver_id,
 
-    -- amounts
+    -- amounts (remove letters, symbols, commas)
     case
         when amount is null then null
-        else regexp_replace(lower(trim(amount)), '[a-z$ ]', '', 'g')::numeric
+        else regexp_replace(trim(amount), '[^0-9.]', '', 'g')::numeric
     end as amount_num,
 
     case
         when exchange_rate is null then null
-        else regexp_replace(lower(trim(exchange_rate)), '[a-z$ ]', '', 'g')::numeric
+        else regexp_replace(trim(exchange_rate), '[^0-9.]', '', 'g')::numeric
     end as exchange_rate_num,
 
     case
         when fee is null then null
-        else regexp_replace(lower(trim(fee)), '[a-z$ ]', '', 'g')::numeric
+        else regexp_replace(trim(fee), '[^0-9.]', '', 'g')::numeric
     end as fee_num,
 
     -- currency normalization
@@ -47,7 +47,7 @@ select
 
     -- payment method normalization
     case
-        when lower(trim(payment_method)) in ('wallet') then 'wallet'
+        when lower(trim(payment_method)) = 'wallet' then 'wallet'
         when lower(trim(payment_method)) in ('bank_transfer','bank') then 'bank_transfer'
         else lower(trim(payment_method))
     end as payment_method_norm,
@@ -56,11 +56,26 @@ select
     trim(reference_number) as reference_number,
     description,
 
-    -- timestamps
-    transaction_date::timestamp as transaction_date_ts,
-    completed_at::timestamp as completed_at_ts,
-    cancelled_at::timestamp as cancelled_at_ts,
-    created_at::timestamp as created_at_ts,
+    -- timestamps safely parsed
+    case when transaction_date ~ '^\d{2}-\d{2}-\d{4} \d{2}:\d{2}$' 
+        then to_timestamp(transaction_date, 'DD-MM-YYYY HH24:MI')
+        else null
+    end as transaction_date_ts,
+
+    case when completed_at ~ '^\d{2}-\d{2}-\d{4} \d{2}:\d{2}$' 
+        then to_timestamp(completed_at, 'DD-MM-YYYY HH24:MI')
+        else null
+    end as completed_at_ts,
+
+    case when cancelled_at ~ '^\d{2}-\d{2}-\d{4} \d{2}:\d{2}$' 
+        then to_timestamp(cancelled_at, 'DD-MM-YYYY HH24:MI')
+        else null
+    end as cancelled_at_ts,
+
+    case when created_at ~ '^\d{2}-\d{2}-\d{4} \d{2}:\d{2}$' 
+        then to_timestamp(created_at, 'DD-MM-YYYY HH24:MI')
+        else null
+    end as created_at_ts,
 
     -- dispute status normalization
     case
@@ -71,3 +86,4 @@ select
     end as dispute_status_norm
 
 from {{ source('public','raw_p2p_transactions') }}
+
