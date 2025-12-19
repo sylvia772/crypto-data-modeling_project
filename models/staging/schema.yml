@@ -7,3 +7,4 @@ sources:
       - name: raw_users
       - name: raw_onchain_txn
       - name: raw_p2p_transactions
+      - name: raw_lightning_txn
