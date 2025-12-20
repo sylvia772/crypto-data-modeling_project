@@ -8,8 +8,8 @@ select
 
     -- normalize txn_type
     case
-        when lower(trim(txn_type)) in ('deposit') then 'deposit'
-        when lower(trim(txn_type)) in ('withdrawal') then 'withdrawal'
+        when lower(trim(txn_type)) = 'deposit' then 'deposit'
+        when lower(trim(txn_type)) = 'withdrawal' then 'withdrawal'
         else lower(trim(txn_type))
     end as txn_type,
 
@@ -41,10 +41,10 @@ select
     trim(to_address) as to_address,
 
     -- block number
-    nullif(block_number,'')::bigint as block_number,
+    nullif(block_number, '')::bigint as block_number,
 
     -- confirmations
-    nullif(confirmations,'')::int as confirmations,
+    nullif(confirmations, '')::int as confirmations,
 
     -- status normalization
     case
@@ -54,14 +54,21 @@ select
         else lower(trim(status))
     end as status_norm,
 
-    -- timestamps safely parsed
-    case when created_date ~ '^\d{2}-\d{2}-\d{4} \d{2}:\d{2}$'
-        then to_timestamp(created_date, 'DD-MM-YYYY HH24:MI')
+    -- created timestamp (handles both formats safely)
+    case
+        when created_date ~ '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
+            then to_timestamp(created_date, 'YYYY-MM-DD HH24:MI:SS')
+        when created_date ~ '^\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}$'
+            then to_timestamp(created_date, 'DD/MM/YYYY HH24:MI:SS')
         else null
     end as created_at_ts,
 
-    case when completed_date ~ '^\d{2}-\d{2}-\d{4} \d{2}:\d{2}$'
-        then to_timestamp(completed_date, 'DD-MM-YYYY HH24:MI')
+    -- completed timestamp (handles both formats safely)
+    case
+        when completed_date ~ '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
+            then to_timestamp(completed_date, 'YYYY-MM-DD HH24:MI:SS')
+        when completed_date ~ '^\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}$'
+            then to_timestamp(completed_date, 'DD/MM/YYYY HH24:MI:SS')
         else null
     end as completed_date_ts,
 
