@@ -5,10 +5,10 @@
 
 Welcome to this project.
 
-This repository is a **data modeling project** built to simulate how data analysts and analytics engineers work with **real-world, messy data** and transform it into **analytics-ready data** that can be trusted for decision-making.
+This repository is a **data modeling project** built to simulate how data analysts and analytics engineers work with **real-world, messy data** and transform it into **analytics ready data** that can be trusted for decision-making.
 
 If you are a **technical user**, you’ll be able to navigate the project structure easily.  
-If you are **non-technical**, don’t worry — this README will walk you through what the project is, why it exists, and how to understand it at a high level.
+If you are **non-technical**, don’t worry this README will walk you through what the project is, why it exists, and how to understand it at a high level.
 
 ---
 
